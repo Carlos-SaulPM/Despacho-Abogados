@@ -3,7 +3,7 @@ package mx.unam.aragon.despachoabogados.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class appController {
     @FXML
     private Label welcomeText;
 
