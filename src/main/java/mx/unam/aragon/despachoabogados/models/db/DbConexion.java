@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import mx.unam.aragon.despachoabogados.models.exceptions.ExceptionDbConexion;
+import mx.unam.aragon.despachoabogados.models.exceptions.ConexionDbException;
 
 public class DbConexion {
   private static final String URL = "jdbc:mariadb://localhost:3306/";
@@ -12,11 +12,14 @@ public class DbConexion {
   private static final String USUARIO= "root";
   private static final String CONTRASENA = "110403";
 
-  public static Connection getConexion() throws ExceptionDbConexion {
+  /**
+   * @throws ConexionDbException Lanzada cuando existe algun error en la conexion a la Db
+   * */
+  public static Connection getConexion() throws ConexionDbException {
     try {
       return DriverManager.getConnection(URL + DB, USUARIO, CONTRASENA);
     } catch (SQLException e) {
-      throw new ExceptionDbConexion("ERROR EN LA CONEXIÓN A LA BASE DE DATOS", e);
+      throw new ConexionDbException("ERROR EN LA CONEXIÓN A LA BASE DE DATOS", e);
     }
   }
 }
