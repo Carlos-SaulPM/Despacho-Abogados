@@ -1,6 +1,7 @@
 package mx.unam.aragon.despachoabogados.models;
 
 import mx.unam.aragon.despachoabogados.models.db.ExpedienteEntidad;
+import mx.unam.aragon.despachoabogados.models.exceptions.ConexionDbException;
 import mx.unam.aragon.despachoabogados.models.exceptions.FechasInvalidas;
 import mx.unam.aragon.despachoabogados.models.exceptions.QueryErrorException;
 
@@ -8,7 +9,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 public class Expediente {
   private int id_epe;
@@ -18,9 +18,10 @@ public class Expediente {
   private String tipo_participacion_cliente;
   private LocalDateTime fecha_inicio;
   private LocalDateTime fecha_fin;
+  private Estado estado;
 
   /**
-   * Objeto para guardar los datos de la base de datos
+   * Objeto para guardar los datos que se obtienen de la base de datos
    * @param id_epe es el id del expediente.
    * @param id_cte es el id del cliente.
    * @param id_tco es el id del tipo de caso
@@ -33,9 +34,10 @@ public class Expediente {
     this.id_tco = id_tco;
     this.tipo_participacion_cliente = tipo_participacion_cliente;
     if (!verificarFechas(fecha_inicio.toLocalDateTime(), fecha_fin.toLocalDateTime()))
-      throw new FechasInvalidas("La fecha de inicio esta después de la fecha de fin");
+      throw new FechasInvalidas("Fechas inválidas, fecha inicio esta después de fecha fin");
     this.fecha_inicio = fecha_inicio.toLocalDateTime();
     this.fecha_fin = fecha_fin.toLocalDateTime();
+    this.estado = new Estado();
   }
   /**
    * Objeto para recibir datos de las vistas
@@ -53,11 +55,13 @@ public class Expediente {
     LocalDateTime fechaInicioCompleta = convertirAFechaYHora(fechaInicio);
     LocalDateTime fechaFinCompleta = convertirAFechaYHora(fechaFin);
     if (!verificarFechas(fechaInicioCompleta, fechaFinCompleta))
-      throw new FechasInvalidas("La fecha de inicio esta después de la fecha de fin");
+      throw new FechasInvalidas("Fechas inválidas, fecha inicio esta después de fecha fin");
     this.fecha_inicio = fechaInicioCompleta;
     this.fecha_fin = fechaFinCompleta;
+    this.estado = new Estado();
   }
 
+  //Funciones Auxiliares
   private boolean verificarFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
     return fechaInicio.isBefore(fechaFin);
   }
@@ -65,7 +69,7 @@ public class Expediente {
     return LocalDateTime.of(fecha, LocalTime.now());
   }
 
-  public void aztualizarExpediente() throws QueryErrorException {
+  public void actualizarExpediente() throws QueryErrorException {
     ExpedienteEntidad.actualizarExpediente(this);
   }
 
@@ -137,5 +141,10 @@ public class Expediente {
 
   public void setFecha_fin(LocalDateTime fecha_fin) {
     this.fecha_fin = fecha_fin;
+  }
+
+  public Estado getEstado() throws ConexionDbException {
+    if(this.estado.getId_eto() == 0){this.estado.actualizarEstado(this);}
+    return estado;
   }
 }
